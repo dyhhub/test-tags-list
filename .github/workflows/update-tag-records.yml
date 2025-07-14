@@ -1,0 +1,30 @@
+name: Update Tag Records
+
+on:
+  repository_dispatch:
+    types: [project2_tag_created]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Get payload data
+        id: payload
+        run: |
+          echo "tag=${{ github.event.client_payload.tag }}" >> $GITHUB_OUTPUT
+          echo "sha=${{ github.event.client_payload.sha }}" >> $GITHUB_OUTPUT
+          echo "source_repo=${{ github.event.client_payload.source_repo }}" >> $GITHUB_OUTPUT
+
+      - name: Update tag records
+        run: |
+          # 这里添加你更新tag记录的逻辑
+          # 例如追加到某个文件或更新数据库
+          echo "New tag ${{ steps.payload.outputs.tag }} from ${{ steps.payload.outputs.source_repo }} (SHA: ${{ steps.payload.outputs.sha }})" >> tags-record.md
+          
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add tags-record.md
+          git commit -m "Update tag record: ${{ steps.payload.outputs.tag }} from ${{ steps.payload.outputs.source_repo }}"
+          git push
