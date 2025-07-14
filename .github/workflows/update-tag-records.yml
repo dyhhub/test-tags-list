@@ -21,16 +21,42 @@ jobs:
           echo "source_repo=${{ github.event.client_payload.source_repo }}" >> $GITHUB_OUTPUT
 
       - name: Update tag records
-        env:
-          GH_TOKEN: ${{ secrets.PROJECT1_PAT }}  # 使用你创建的PAT
         run: |
           # 这里添加你更新tag记录的逻辑
           # 例如追加到某个文件或更新数据库
-          echo "New tag ${{ steps.payload.outputs.tag }} from ${{ steps.payload.outputs.source_repo }} (SHA: ${{ steps.payload.outputs.sha }})" >> tags-record.md
+          # echo "New tag ${{ steps.payload.outputs.tag }} from ${{ steps.payload.outputs.source_repo }} (SHA: ${{ steps.payload.outputs.sha }})" >> tags-record.md
           
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add tags-record.md
-          git commit -m "Update tag record: ${{ steps.payload.outputs.tag }} from ${{ steps.payload.outputs.source_repo }}"
+          # git config user.name "GitHub Actions"
+          # git config user.email "actions@github.com"
+          # git add tags-record.md
+          # git commit -m "Update tag record: ${{ steps.payload.outputs.tag }} from ${{ steps.payload.outputs.source_repo }}"
+          # git push
+
+
+          # {
+          #   "xxxname1":["v0.0.1","v0.0.2",v1.0.0]
+          #   "xxxname2":["v0.0.1","v0.0.2",v2.0.0]
+          # }
+
+
+          # 定义你的项目名称（根据实际情况修改）
+          PROJECT_NAME=${{ steps.payload.outputs.source_repo }}
+          
+          # 如果文件不存在，创建初始空对象
+          if [ ! -f update-tag.json ]; then
+            echo "{}" > update-tag.json
+          fi
+          
+          # 使用 jq 添加/更新条目
+          jq --arg name "$PROJECT_NAME" \
+            --arg tag "${{ steps.payload.outputs.tag }}" \
+            'if has($name) then .[$name] += [$tag] else .[$name] = [$tag] end' \
+            update-tag.json > tmp.json && mv tmp.json update-tag.json
+          
+          # 格式化JSON文件（可选）
+          jq . update-tag.json > tmp.json && mv tmp.json update-tag.json
+          
+          # 提交更改
+          git add update-tag.json
+          git commit -m "Add tag ${{ steps.payload.outputs.tag }} for $PROJECT_NAME to JSON record"
           git push
-          # git push "https://$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git" HEAD:main
