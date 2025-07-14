@@ -2,5 +2,8 @@
   "dyhhub/test-node": [
     "v0.0.3",
     "v0.0.4"
+  ],
+  "dyhhub/test-node-2": [
+    "v0.0.1"
   ]
 }
