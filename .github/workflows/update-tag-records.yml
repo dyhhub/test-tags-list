@@ -57,6 +57,8 @@ jobs:
           jq . update-tag.json > tmp.json && mv tmp.json update-tag.json
           
           # 提交更改
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
           git add update-tag.json
           git commit -m "Add tag ${{ steps.payload.outputs.tag }} for $PROJECT_NAME to JSON record"
           git push
