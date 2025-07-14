@@ -4,6 +4,9 @@ on:
   repository_dispatch:
     types: [project2_tag_created]
 
+permissions:
+  contents: write  # 授予写入权限
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -29,5 +32,5 @@ jobs:
           git config user.email "actions@github.com"
           git add tags-record.md
           git commit -m "Update tag record: ${{ steps.payload.outputs.tag }} from ${{ steps.payload.outputs.source_repo }}"
-          # git push
-          git push "https://$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git" HEAD:main
+          git push
+          # git push "https://$GH_TOKEN@github.com/$GITHUB_REPOSITORY.git" HEAD:main
